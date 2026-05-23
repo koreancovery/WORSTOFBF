@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>32강 토너먼트 게임 (설명 포함)</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background-color: #f5f6fa;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #2f3640;
+            margin-bottom: 5px;
+        }
+
+        #round-title {
+            font-size: 1.5rem;
+            color: #718093;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .game-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            width: 100%;
+            max-width: 1000px;
+            margin-top: 20px;
+        }
+
+        .choice-card {
+            flex: 1;
+            background: white;
+            border: 3px solid #dcdde1;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column; /* 세로 정렬로 변경 */
+            justify-content: center;
+            align-items: center;
+            min-height: 220px;
+        }
+
+        .choice-card:hover {
+            transform: translateY(-5px);
+            border-color: #353b48;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
+        .choice-text {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #2f3640;
+            word-break: keep-all;
+            margin-bottom: 12px; /* 설명과의 간격 */
+        }
+
+        .choice-desc {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            word-break: keep-all;
+            line-height: 1.4;
+        }
+
+        .vs-bridge {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #e84118;
+            font-style: italic;
+        }
+
+        #result-area {
+            display: none;
+            text-align: center;
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-top: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .winner-text {
+            font-size: 2.8rem;
+            color: #44bd32;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .winner-desc {
+            font-size: 1.3rem;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background-color: #353b48;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .restart-btn:hover {
+            background-color: #2f3640;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>최악의 남친 월드컵</h1>
+    <div id="round-title">로딩 중...</div>
+
+    <!-- 게임 진행 영역 -->
+    <div id="game-area" class="game-container">
+        <div class="choice-card" onclick="selectChoice(0)">
+            <div id="choice-left" class="choice-text">왼쪽 선택지</div>
+            <div id="desc-left" class="choice-desc">왼쪽 부연설명</div>
+        </div>
+        
+        <div class="vs-bridge">VS</div>
+        
+        <div class="choice-card" onclick="selectChoice(1)">
+            <div id="choice-right" class="choice-text">오른쪽 선택지</div>
+            <div id="desc-right" class="choice-desc">오른쪽 부연설명</div>
+        </div>
+    </div>
+
+    <!-- 최종 결과 영역 -->
+    <div id="result-area">
+        <h2>🏆 최종 우승 🏆</h2>
+        <div id="winner-display" class="winner-text">우승 아이템</div>
+        <div id="winner-desc-display" class="winner-desc">우승 설명</div>
+        <button class="restart-btn" onclick="restartGame()">다시 시작하기</button>
+    </div>
+
+    <script>
+        // 데이터 구조를 { name: "이름", desc: "부연설명" } 형태로 변경했습니다.
+        // 원하는 단어와 설명으로 자유롭게 교체해 보세요!
+        const initialItems = [
+            { name: "쩝쩝충", desc: "밥 먹을 때마다 쩝쩝소리가 가게 내에 다 울릴 정도" },
+            { name: "거짓말쟁이", desc: "자기 놀려고 나한테 갖은 거짓말 다 함" },
+            { name: "말 잘라먹음", desc: "내가 하는 말 다 잘라먹고 지 하고 싶은 말만 함." },
+            { name: "허세충", desc: "능력은 쥐뿔도 없는데, 말로는 만수르급 재력 운동 좀만 하면 자기가 덱스나 윤성빈 따라잡는다고 함" },
+            { name: "일뽕맨", desc: "역사왜곡의 끝판왕수준으로 비틀려있음-위안부는 여성들이 원해서 간 거다 정도" },
+            { name: "꺼벙이", desc: "나와의 약속만은 귀신같이 까먹어서 매번 30~40분씩 늦음" },
+            { name: "여미새", desc: "매번 dm하는 거 보면 전부 여자랑만 함" },
+            { name: "마마보이", desc: "데이트코스도 엄마랑 짬" },
+            { name: "울보", desc: "작은 걸로도 길거리에서 펑펑 욺" },
+            { name: "말버릇 안 좋음", desc: "감탄사 전부 욕으로 바꿔서 큰소리로 말함" },
+            { name: "여캠중독", desc: "인스타 알고리즘 전부 여캠으로만 도배되어있음" },
+            { name: "멍청함", desc: "기초상식조차 부족함-예를들어 미국의 수도가 어디냐고 물어보면 뉴욕이라고 대답함. 이상하게 쳐다보면 LA인데 실수했다고 말함" },
+            { name: "왕자병", desc: "너 전생에 나라구했다, 내가 걔랑 만나주는 거라고 주변인 포함 매번 말함" },
+            { name: "알파메일추종자", desc: "남자는 이래야지, 여자는 이래야지 입에 달고 삶" },
+            { name: "식탐많음", desc: "자기 거 개빨리 다 처먹고 내 거 먹고 싶어서 쳐다보고 있음" },
+            { name: "눈치없음", desc: "기념일날 선물 받고 싶은 거 미리 살짝 언질해줘도 이상한 거 준비해옴." },
+            { name: "싸가지없음", desc: "식당가서 점원한테 반말 찍찍해댐. 돈내잖아를 입에 달고 삶" },
+            { name: "떠벌이", desc: "나랑한 약속, 스킨십 전부 친구들한테 말하고 다님" },
+            { name: "오타쿠", desc: "대화 전부 애니메이션 대사" },
+            { name: "게임중독", desc: "모든 데이트 피시방" },
+            { name: "가성비", desc: "모든 데이트 하루 1만원 이하로 잡음" },
+            { name: "찐친여사친", desc: "그 여자 인스타에 내 남자친구 사진으로 도배됨. 나랑 데이트하는 건 다 해본 것들" },
+            { name: "흡연충", desc: "입에서 아가리 똥내남" },
+            { name: "호사가", desc: "나는 만년 2순위" },
+            { name: "시비충", desc: "말끝에 매번 날이 서있음." },
+            { name: "과소비", desc: "자기 취미에만 돈 엄청 씀" },
+            { name: "집착", desc: "5분 안에 답장 안오면 위치추적함" },
+            { name: "더치페이", desc: "지가 먹은 게 더 많은데, 무조건 더치페이 해야 된다고 함." },
+            { name: "흑색선전", desc: "전여친 욕을 엄청 해댐(나랑 헤어져도 100%함)" },
+            { name: "패션테러리스트", desc: "옷 더럽게 못입음" },
+            { name: "하남자", desc: "여친한테만 세고 남들한텐 한없이 약함" },
+            { name: "운동중독", desc: "모든 데이트 헬스장, 클라이밍, 크로스핏 박스" }
+        ];
+
+        let currentItems = [];
+        let nextRoundItems = [];
+        let matchIndex = 0;
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function startGame() {
+            document.getElementById('game-area').style.display = 'flex';
+            document.getElementById('result-area').style.display = 'none';
+            
+            currentItems = shuffle([...initialItems]);
+            nextRoundItems = [];
+            matchIndex = 0;
+            
+            updateScreen();
+        }
+
+        function updateScreen() {
+            const totalMatches = currentItems.length / 2;
+            let roundText = "";
+
+            if (currentItems.length === 2) {
+                roundText = "결승전";
+            } else {
+                roundText = `${currentItems.length}강 (${matchIndex + 1}/${totalMatches})`;
+            }
+            document.getElementById('round-title').innerText = roundText;
+
+            // 왼쪽 선택지와 부연설명 배치
+            document.getElementById('choice-left').innerText = currentItems[matchIndex * 2].name;
+            document.getElementById('desc-left').innerText = currentItems[matchIndex * 2].desc;
+
+            // 오른쪽 선택지와 부연설명 배치
+            document.getElementById('choice-right').innerText = currentItems[matchIndex * 2 + 1].name;
+            document.getElementById('desc-right').innerText = currentItems[matchIndex * 2 + 1].desc;
+        }
+
+        function selectChoice(index) {
+            const selected = currentItems[matchIndex * 2 + index];
+            nextRoundItems.push(selected);
+
+            matchIndex++;
+
+            if (matchIndex >= currentItems.length / 2) {
+                if (nextRoundItems.length === 1) {
+                    showWinner(nextRoundItems[0]);
+                } else {
+                    currentItems = [...nextRoundItems];
+                    nextRoundItems = [];
+                    matchIndex = 0;
+                    updateScreen();
+                }
+            } else {
+                updateScreen();
+            }
+        }
+
+        function showWinner(winner) {
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('round-title').innerText = "게임 종료";
+            
+            const resultArea = document.getElementById('result-area');
+            resultArea.style.display = 'block';
+            
+            // 결과 창에도 이름과 설명이 모두 나오도록 변경
+            document.getElementById('winner-display').innerText = winner.name;
+            document.getElementById('winner-desc-display').innerText = winner.desc;
+        }
+
+        function restartGame() {
+            startGame();
+        }
+
+        window.onload = startGame;
+    </script>
+</body>
+</html>
