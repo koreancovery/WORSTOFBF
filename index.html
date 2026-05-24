@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>32강 토너먼트 게임 (설명 포함)</title>
+    <title>32강 토너먼트 게임 (최악의 남자친구를 선택하자)</title>
     <style>
         body {
             font-family: 'Malgun Gothic', sans-serif;
@@ -122,6 +122,86 @@
         .restart-btn:hover {
             background-color: #2f3640;
         }
+CSS
+/* =======================================================
+   안드로이드 및 모바일 화면 최적화 (가로 폭 768px 이하일 때)
+   ======================================================= */
+@media screen and (max-width: 768px) {
+    body {
+        padding: 10px; /* 여백을 줄여 공간 확보 */
+    }
+
+    h1 {
+        font-size: 1.5rem; /* 제목 크기 축소 */
+    }
+
+    #round-title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+
+    /* 좌우 배치였던 카드를 위아래(세로) 배치로 변경 */
+    .game-container {
+        flex-direction: column; 
+        gap: 15px; /* 카드 사이 간격 좁히기 */
+        margin-top: 10px;
+    }
+
+    /* 모바일용 카드 스타일 조정 */
+    .choice-card {
+        padding: 15px;
+        min-height: auto; /* 고정 높이 해제하여 유연하게 조절 */
+        flex: none;
+    }
+
+    /* 이미지 크기가 모바일 화면을 벗어나지 않도록 조정 */
+    .choice-img {
+        max-width: 100%;
+        height: 150px; /* 높이를 조금 줄여 한 화면에 들어오게 함 */
+        margin-bottom: 10px;
+    }
+
+    /* 텍스트 크기 모바일에 맞게 축소 */
+    .choice-text {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+
+    .choice-desc {
+        font-size: 0.95rem;
+    }
+
+    /* 가운데 VS 글자 연출 변경 (회색 둥근 뱃지 형태) */
+    .vs-bridge {
+        justify-content: center;
+        font-size: 1.2rem;
+        padding: 5px 0;
+        color: #fff;
+        background-color: #e84118;
+        border-radius: 20px;
+        width: 50px;
+        margin: 0 auto; /* 가운데 정렬 */
+        font-style: normal;
+    }
+
+    /* 결과창 모바일 최적화 */
+    #result-area {
+        padding: 30px 15px;
+    }
+
+    .winner-img {
+        max-width: 100%;
+        height: 180px;
+    }
+
+    .winner-text {
+        font-size: 2rem;
+    }
+
+    .winner-desc {
+        font-size: 1.1rem;
+    }
+}
     </style>
 </head>
 <body>
@@ -267,5 +347,6 @@
 
         window.onload = startGame;
     </script>
+국어의 발견에서 제공함
 </body>
 </html>
